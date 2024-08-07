@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: caju
+      POSTGRES_PASSWORD: caju
+      POSTGRES_DB: caju-desafio
+    volumes:
+      - ../data/postgresql:/var/lib/postgresql/data
+
