@@ -1,6 +1,7 @@
 package com.caju_desafio.ms_caju_desafio.persistence.repository;
 
 import com.caju_desafio.ms_caju_desafio.persistence.entity.wallet.WalletBalanceEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 @Repository
 public interface WalletBalanceRepository extends JpaRepository<WalletBalanceEntity, Long> {
     @Modifying
+    @Transactional
     @Query("UPDATE WalletBalanceEntity wbe SET wbe.balance = :balance, wbe.version = wbe.version + 1" +
             "WHERE wbe.id = :id AND wbe.version = :version")
     int updateBalanceByIdAndVersion(@Param("id") Long id,

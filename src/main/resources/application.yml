@@ -10,12 +10,12 @@ spring:
   application:
     name: ms-caju-desafio
   datasource:
-    url: ${MS_CAJU_POSTGRES_URI}
-    username: ${MS_CAJU_POSTGRES_USERNAME}
-    password: ${MS_CAJU_POSTGRES_PASSWORD}
+    url: ${MS_CAJU_POSTGRES_URI:jdbc:postgresql://localhost:5432/caju-desafio}
+    username: ${MS_CAJU_POSTGRES_USERNAME:caju}
+    password: ${MS_CAJU_POSTGRES_PASSWORD:caju}
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
       properties:
         hibernate:
           dialect: org.hibernate.dialect.PostgreSQLDialect

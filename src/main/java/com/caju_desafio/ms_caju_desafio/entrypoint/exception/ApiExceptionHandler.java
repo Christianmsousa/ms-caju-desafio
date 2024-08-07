@@ -4,6 +4,7 @@ package com.caju_desafio.ms_caju_desafio.entrypoint.exception;
 import com.caju_desafio.ms_caju_desafio.core.exception.ApiError;
 import com.caju_desafio.ms_caju_desafio.core.exception.MccException;
 import com.caju_desafio.ms_caju_desafio.core.exception.MerchantException;
+import com.caju_desafio.ms_caju_desafio.core.exception.WalletException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,12 +59,20 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(value = MccException.class)
     protected ResponseEntity<ApiError> mccExceptionHandler(final MccException exception) {
-        return ResponseEntity.status(exception.getError().getStatus()).body(exception.getError());
+        var status = getStatusByCode(exception.getError().getStatus());
+        return ResponseEntity.status(status).body(exception.getError());
     }
 
     @ExceptionHandler(value = MerchantException.class)
     protected ResponseEntity<ApiError> merchantExceptionHandler(final MerchantException exception) {
-        return ResponseEntity.status(exception.getError().getStatus()).body(exception.getError());
+        var status = getStatusByCode(exception.getError().getStatus());
+        return ResponseEntity.status(status).body(exception.getError());
+    }
+
+    @ExceptionHandler(value = WalletException.class)
+    protected ResponseEntity<ApiError> walletExceptionHandler(final WalletException exception) {
+        var status = getStatusByCode(exception.getError().getStatus());
+        return ResponseEntity.status(status).body(exception.getError());
     }
     private static int getStatusByCode(Integer exceptionStatusCode) {
         return (nonNull(exceptionStatusCode) ? exceptionStatusCode : INTERNAL_SERVER_ERROR.value());

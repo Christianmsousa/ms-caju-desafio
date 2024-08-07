@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 import static com.caju_desafio.ms_caju_desafio.core.exception.ApiError.createApiError;
 import static org.springframework.http.HttpStatus.CONFLICT;
 
@@ -25,12 +27,15 @@ public class WalletService {
 
     public Wallet createWallet(Wallet walletRequest) {
         walletGateway.findByAccountId(walletRequest.accountId()).ifPresent(e -> {
-            throw new WalletException(createApiError("MCC already registered", CONFLICT.value()));
+            throw new WalletException(createApiError("Wallet already registered", CONFLICT.value()));
         });
 
         return walletGateway.persist(walletRequest);
     }
 
+    public Optional<Wallet> getWalletByAccountId(String accountId) {
+        return walletGateway.findByAccountId(accountId);
+    }
 
     @Retryable(retryFor = ConcurrencyException.class, maxAttempts = 2)
     public String transaction(Transaction transaction) {

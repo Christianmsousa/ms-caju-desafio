@@ -17,7 +17,7 @@ public record WalletCreateRequest(
         String accountId,
 
         @NotNull(message = "Balances cannot be null")
-        @Size(min = 1, message = "At least one balance type must be provided")
+        @Size(min = 1, max = 3, message = "The number of wallet balances must be between 1 and 3.")
         Set<@Valid WalletBalanceRequest> balances
 ) {
 

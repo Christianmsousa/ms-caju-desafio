@@ -35,7 +35,7 @@ public class WalletBalanceEntity {
     @Column(name = "balance_type")
     private BalanceType balanceType;
 
-    @Column(precision = 18, scale = 4, nullable = false)
+    @Column(precision = 18, scale = 2, nullable = false)
     private BigDecimal balance;
 
     @Column(nullable = false)
