@@ -145,6 +145,12 @@ O serviço foi criado utilizando clean architecture como demonstra a imagem abai
   ```shell
     docker-compose -p cajudb up -d
   ```
+
+- Gerando tabelas com flyway
+  ```shell
+    mvn flyway:migrate
+  ```
+  
 - Inicializar o projeto
   ```shell
   mvn spring-boot:run
