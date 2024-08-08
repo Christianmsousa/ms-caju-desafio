@@ -71,5 +71,4 @@ public class WalletService {
         var mcc = merchant.map(Merchant::mcc).orElse(transaction.mcc());
         return BalanceType.getByMcc(mcc);
     }
-
 }

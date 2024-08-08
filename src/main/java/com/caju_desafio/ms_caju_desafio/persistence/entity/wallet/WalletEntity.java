@@ -37,7 +37,7 @@ public class WalletEntity {
     @Column(name = "account_id", unique = true, nullable = false)
     private String accountId;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "wallet_id")
     private Set<WalletBalanceEntity> balances;
 
