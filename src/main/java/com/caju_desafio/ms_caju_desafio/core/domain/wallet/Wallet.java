@@ -20,19 +20,13 @@ public record Wallet(
     }
 
     public Optional<WalletBalance> getWalletBalanceByType(BalanceType balanceType) {
-        return balances.stream().filter(walletBalance -> walletBalance.balanceType().equals(balanceType)).findFirst();
-    }
-    public boolean hasValueToDebit(BalanceType balanceType, BigDecimal amount) {
-        if (hasTotalValueToDebit(amount)) return false;
-
         return balances.stream()
-                        .filter((balance) -> balance.balanceType().equals(balanceType))
-                        .map(WalletBalance::balance)
-                        .allMatch(balance -> balance.compareTo(amount) >= 0);
+                        .filter(walletBalance -> walletBalance.balanceType().equals(balanceType))
+                        .findFirst();
     }
 
-    public boolean hasTotalValueToDebit(BigDecimal amount) {
-        return amount.compareTo(totalAmount) < 0;
+    public boolean cannotDebit(BigDecimal amount) {
+        return totalAmount.compareTo(amount) < 0;
     }
 
 }

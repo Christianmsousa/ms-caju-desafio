@@ -6,6 +6,7 @@ import com.caju_desafio.ms_caju_desafio.core.domain.wallet.BalanceType;
 import com.caju_desafio.ms_caju_desafio.core.domain.wallet.Transaction;
 import com.caju_desafio.ms_caju_desafio.core.domain.wallet.TransactionCode;
 import com.caju_desafio.ms_caju_desafio.core.domain.wallet.Wallet;
+import com.caju_desafio.ms_caju_desafio.core.domain.wallet.WalletBalance;
 import com.caju_desafio.ms_caju_desafio.core.exception.ConcurrencyException;
 import com.caju_desafio.ms_caju_desafio.core.exception.WalletException;
 import com.caju_desafio.ms_caju_desafio.core.gateway.MerchantGateway;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static com.caju_desafio.ms_caju_desafio.core.exception.ApiError.createApiError;
@@ -39,30 +41,35 @@ public class WalletService {
 
     @Retryable(retryFor = ConcurrencyException.class, maxAttempts = 2)
     public String transaction(Transaction transaction) {
-        var walletOptional = walletGateway.findByAccountId(transaction.account());
-
-        if(walletOptional.isEmpty()){
+        var wallet = walletGateway.findByAccountId(transaction.account()).orElse(null);
+        if(wallet == null){
             return TransactionCode.ERROR.getCode();
         }
-        var wallet = walletOptional.get();
 
-        if(!wallet.hasTotalValueToDebit(transaction.totalAmount())) {
+        var totalAmount = transaction.totalAmount();
+        if(wallet.cannotDebit(totalAmount)) {
             return TransactionCode.REJECTED.getCode();
         }
-        var merchant = merchantGateway.findByName(transaction.merchant().toUpperCase());
+        var balancetype = getBalanceType(transaction);
 
-        var mcc = merchant.map(Merchant::mcc).orElse(transaction.mcc());
-        var balancetype = BalanceType.getByMcc(mcc);
-
-
-        return wallet
-                .getWalletBalanceByType(balancetype)
-                .map(walletBalance -> {
-                    var valueToSet = walletBalance.balance().subtract(transaction.totalAmount());
-                    walletGateway.debit(walletBalance.id(), valueToSet, walletBalance.version());
-                    return TransactionCode.SUCCESS.getCode();
-                })
+        return wallet.getWalletBalanceByType(balancetype)
+                .map(walletBalance -> processTransaction(transaction, walletBalance, totalAmount))
                 .orElse(TransactionCode.ERROR.getCode());
+    }
+
+    private String processTransaction(Transaction transaction, WalletBalance walletBalance, BigDecimal totalAmount) {
+        if(walletBalance.cannotDebit(totalAmount)){
+            return TransactionCode.REJECTED.getCode();
+        }
+        var valueToSet = walletBalance.balance().subtract(transaction.totalAmount());
+        walletGateway.debit(walletBalance.id(), valueToSet, walletBalance.version());
+        return TransactionCode.SUCCESS.getCode();
+    }
+
+    private BalanceType getBalanceType(Transaction transaction) {
+        var merchant = merchantGateway.findByName(transaction.merchant().toUpperCase());
+        var mcc = merchant.map(Merchant::mcc).orElse(transaction.mcc());
+        return BalanceType.getByMcc(mcc);
     }
 
 }

@@ -7,4 +7,9 @@ public record WalletBalance(
     BalanceType balanceType,
     BigDecimal balance,
     Long version
-) { }
+) {
+
+    public boolean cannotDebit(BigDecimal amountToDebit) {
+        return balance.compareTo(amountToDebit) < 0;
+    }
+}
